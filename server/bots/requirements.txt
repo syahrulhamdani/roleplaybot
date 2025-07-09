@@ -1,0 +1,2 @@
+aiohttp
+pipecat-ai[daily,google,openai,silero,websocket]==0.0.50

@@ -1,0 +1,39 @@
+[project]
+name = "voice-agent-server"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Deloitte"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<4.0"
+dependencies = [
+    "pipecat-ai[daily,google,openai,silero,websocket] (>=0.0.69,<0.1.0)",
+    "loguru (>=0.7.3,<0.8.0)",
+    "fastapi (>=0.115.0,<0.116.0)",
+    "python-multipart (>=0.0.19,<0.1.0)",
+    "uvicorn (>=0.30.6,<0.31.0)",
+    "python-dotenv (>=1.0.1,<1.1.0)",
+    "pydantic (>=2.10.6,<2.11.0)",
+    "argon2-cffi (>=23.1.0,<23.2.0)",
+    "sqlalchemy[aiosqlite] (>=2.0.35,<2.1.0)",
+    "jinja2 (>=3.1.4,<3.2.0)",
+    "cryptography (>=43.0.3,<43.1.0)",
+    "typer (>=0.12.5,<0.13.0)",
+    "psycopg[binary,pool] (>=3.2.9,<3.3.0)",
+    "langgraph (>=0.5.0,<0.6.0)",
+    "langchain-google-vertexai (>=2.0.26,<2.1.0)",
+    "langchain (>=0.3.26,<0.4.0)",
+    "mlflow (>=3.1.0,<3.2.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+black = "^25.1.0"
+ruff = "^0.11.12"
+isort = "^6.0.1"
+

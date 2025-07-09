@@ -1,0 +1,18 @@
+name: Run Ruff
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'bugfix/**'
+      - 'hotfix/**'
+
+jobs:
+  ruff_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ruff check based on PLE
+        uses: astral-sh/ruff-action@v1
+        with:
+          args: "check --select PLE"
