@@ -9,7 +9,7 @@ from pipecat.pipeline.pipeline import Pipeline
 from pipecat.processors.user_idle_processor import UserIdleProcessor
 from pipecat.services.ai_services import OpenAILLMContext
 from pipecat.services.gemini_multimodal_live.gemini import (
-    GeminiMultimodalLiveLLMService,
+    GeminiMultimodalLiveLLMService, InputParams
 )
 from pipecat.services.google.rtvi import RTVIObserver
 from pipecat.transports.services.daily import DailyParams, DailyTransport
@@ -23,7 +23,7 @@ from common.config import (
     PROMPT_NAME,
     SERVICE_API_KEYS,
     USE_CASE,
-    SCENARIO_PROMPT_NAME,
+    ROLEPLAY_SCENARIO,
 )
 from common.config_models import ConfigListResponse
 from common.models import Conversation, Message
@@ -48,7 +48,7 @@ async def _get_latest_config(
     async with ConfigService() as config_service:
         try:
             configs = await config_service.list_configs(
-                env=env, useCase=use_case, size=1
+                env=env, useCase=use_case, size=10
             )
             return configs
         except Exception as e:
@@ -86,9 +86,9 @@ async def bot_pipeline(
             vad_enabled=True,
             vad_analyzer=SileroVADAnalyzer(
                 params=VADParams(
-                    stop_secs=3,
-                    min_speech_duration_ms=500,
-                    min_silence_duration_ms=3000,
+                    confidence=.85,
+                    stop_secs=5,
+                    start_secs=.5,
                 )
             ),
             vad_audio_passthrough=True,
@@ -117,11 +117,13 @@ async def bot_pipeline(
         async with PromptService() as prompt_service:
             scenario_prompt = await get_latest_prompt(
                 service=prompt_service,
-                prompt_name=SCENARIO_PROMPT_NAME,
+                prompt_name=ROLEPLAY_SCENARIO,
                 use_case=USE_CASE,
                 env=ENV,
             )
-            params.prompt_config.scenario = scenario_prompt
+            params.prompt_config.scenario = (
+                scenario_prompt.content if scenario_prompt else ""
+            )
 
     try:
         logger.debug("Initiating GeminiMultimodalLiveLLMService")
@@ -129,6 +131,7 @@ async def bot_pipeline(
             **params.prompt_config.model_dump()
         )
         llm_rt = GeminiMultimodalLiveLLMService(
+            model="models/gemini-2.5-flash-preview-native-audio-dialog",
             api_key=str(SERVICE_API_KEYS["gemini"]),
             voice_id=[
                 config.value
@@ -204,7 +207,6 @@ async def bot_pipeline(
     processors = [
         transport.input(),
         rtvi,
-        user_idle,
         user_aggregator,
         llm_rt,
         transport.output(),
