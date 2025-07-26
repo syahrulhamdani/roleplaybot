@@ -2,6 +2,7 @@ import {
   AppStateContext,
   ConversationType,
   InteractionMode,
+  ScenarioConfig,
 } from "@/contexts/AppStateContext";
 import { useConversation } from "@/hooks/useConversation";
 import { useDeferredValue, useEffect, useState } from "react";
@@ -31,6 +32,7 @@ export const AppStateProvider: React.FC<React.PropsWithChildren<Props>> = ({
   const [conversationType, setConversationType] = useState<ConversationType>(
     "text-voice",
   );
+  const [scenarioConfig, setScenarioConfig] = useState<ScenarioConfig | null>(null);
 
   useEffect(() => {
     setConversationType("text-voice");
@@ -65,6 +67,8 @@ export const AppStateProvider: React.FC<React.PropsWithChildren<Props>> = ({
         setInteractionMode,
         searchQuery: deferredSearchQuery,
         setSearchQuery,
+        scenarioConfig,
+        setScenarioConfig,
         geminiApiKey,
         webrtcEnabled,
         websocketEnabled,

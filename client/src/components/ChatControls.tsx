@@ -84,7 +84,7 @@ type VideoPlacement = "left" | "right";
 type UploadStatus = "done" | "error";
 
 const ChatControls: React.FC<Props> = ({ onChangeMode, vision = false }) => {
-  const { conversationId, setConversationId, webrtcEnabled } = useAppState();
+  const { conversationId, setConversationId, webrtcEnabled, scenarioConfig } = useAppState();
 
   const [isVoiceMode, setIsVoiceMode] = useState(false);
   const [isCamMuted, setIsCamMuted] = useState(true);
@@ -150,10 +150,22 @@ const ChatControls: React.FC<Props> = ({ onChangeMode, vision = false }) => {
 
     if (attachmentIds.length) {
       // If attachments are present, add them to the request data
-      client.params.requestData = {
+      const requestData: any = {
         ...(client.params.requestData ?? {}),
         attachments: [...attachmentIds],
       };
+
+      // Preserve scenario config if available
+      if (scenarioConfig) {
+        requestData.prompt_config = {
+          language: scenarioConfig.language,
+          scenario_title: scenarioConfig.scenario_title,
+          scenario: scenarioConfig.scenario,
+          level: scenarioConfig.level,
+        };
+      }
+
+      client.params.requestData = requestData;
       setAttachmentIds([]);
     }
 
@@ -181,10 +193,22 @@ const ChatControls: React.FC<Props> = ({ onChangeMode, vision = false }) => {
       setProcessingAction(false);
 
       // Remove attachments from request data
-      client.params.requestData = {
+      const requestData: any = {
         ...(client.params.requestData ?? {}),
         attachments: undefined,
       };
+
+      // Preserve scenario config if available
+      if (scenarioConfig) {
+        requestData.prompt_config = {
+          language: scenarioConfig.language,
+          scenario_title: scenarioConfig.scenario_title,
+          scenario: scenarioConfig.scenario,
+          level: scenarioConfig.level,
+        };
+      }
+
+      client.params.requestData = requestData;
     }
   };
 
@@ -208,10 +232,22 @@ const ChatControls: React.FC<Props> = ({ onChangeMode, vision = false }) => {
 
         newConversationIdRef.current = newConversationId;
 
-        rtviClient.params.requestData = {
+        const requestData: any = {
           ...(rtviClient.params.requestData ?? {}),
           conversation_id: newConversationId,
         };
+
+        // Add scenario config if available
+        if (scenarioConfig) {
+          requestData.prompt_config = {
+            language: scenarioConfig.language,
+            scenario_title: scenarioConfig.scenario_title,
+            scenario: scenarioConfig.scenario,
+            level: scenarioConfig.level,
+          };
+        }
+
+        rtviClient.params.requestData = requestData;
 
         emitter.emit("updateSidebar");
         if (voice) {
@@ -222,7 +258,7 @@ const ChatControls: React.FC<Props> = ({ onChangeMode, vision = false }) => {
       }
       return null;
     },
-    [rtviClient, setConversationId],
+    [rtviClient, setConversationId, scenarioConfig],
   );
 
   const handleTextSubmit = async (ev: FormEvent<HTMLFormElement>) => {
